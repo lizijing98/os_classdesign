@@ -28,6 +28,6 @@ public class PCB {
     String status;
     //    页表数
     List<Integer> pageNumbers;
-    //     响应比
+    //     响应比：1+作业等待/作业处理
     int responseRatio;
 }
