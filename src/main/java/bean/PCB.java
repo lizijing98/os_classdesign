@@ -31,5 +31,20 @@ public class PCB {
     //页表命中状态
     List<String> pageStatus;
     //     响应比：1+作业等待/作业处理
-    int responseRatio;
+    double responseRatio;
+
+    @Override
+    public String toString() {
+        return "PCB{" +
+                "name='" + name + '\'' +
+//                ", needMemory=" + needMemory +
+//                ", beginAdd=" + beginAdd +
+                ", arriveTime=" + arriveTime +
+                ", needTime=" + needTime +
+                ", status='" + status + '\'' +
+                ", pageNumbers=" + pageNumbers +
+                ", pageStatus=" + pageStatus +
+                ", responseRatio=" + responseRatio +
+                '}';
+    }
 }

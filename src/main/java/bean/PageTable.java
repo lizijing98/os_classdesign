@@ -27,7 +27,7 @@ public class PageTable {
     }
 
     /**
-     * <p> 增加未访问数 </p>
+     * <p> 增加除Index位置外的未访问数 </p>
      *
      * @author LiZijing
      * @date 2021/12/21
@@ -35,8 +35,8 @@ public class PageTable {
     public void addMiss(int index) {
         for (int i = 0; i < miss.size(); i++) {
             if (i != index && miss.get(index) != null){
-                int oldMiss = miss.get(index);
-                miss.set(index, ++oldMiss);
+                int oldMiss = miss.get(i);
+                miss.set(i, ++oldMiss);
             }
         }
     }
