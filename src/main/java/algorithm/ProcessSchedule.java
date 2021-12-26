@@ -1,6 +1,6 @@
 package algorithm;
 
-import bean.MemoryBlock;
+import bean.Memory;
 import bean.PCB;
 import bean.PageTable;
 
@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -30,8 +29,8 @@ public class ProcessSchedule {
     public List<PCB> blockPcbs = new ArrayList<>(PROCESS_NUM);
     public List<PCB> finishPcbs = new ArrayList<>(PROCESS_NUM);
     private int time = 0;
-    //内存表
-    private LinkedList<MemoryBlock> memoryBlocks = new LinkedList<>();
+    //内存
+    private Memory memory;
     //页表
     private List<Integer> pageTable = new ArrayList<>(10);
     private PageTable pageTable1;
@@ -60,13 +59,13 @@ public class ProcessSchedule {
     private void initData() {
         Random r = new Random();
         //初始化内存块数据
-
+        memory = new Memory(512);
         //初始化页表
         pageTable1 = new PageTable(5);
         //初始化进程数据
         for (int n = 0; n < PROCESS_NUM; n++) {
             PCB pcb = new PCB();
-            pcb.setName("P" + (n + 1));
+            pcb.setPID("P" + (n + 1));
             // 随机服务时间 10~50
             pcb.setNeedTime((r.nextInt(5) + 1) * 10);
             // 设置需要内存均为 50MB
@@ -81,10 +80,12 @@ public class ProcessSchedule {
             if (n == 0) {
                 pcb.setArriveTime(0);
                 pcb.setBeginAdd(0);
+                memory.requestMemory(pcb.getBeginAdd(), pcb.getNeedMemory());
             } else {
 //                设置随机到达时间 0—50
                 pcb.setArriveTime((r.nextInt(5)) * 10);
-                pcb.setBeginAdd(waitingPcbs.get(n - 1).getBeginAdd() + waitingPcbs.get(n - 1).getNeedMemory());
+                pcb.setBeginAdd(waitingPcbs.get(n - 1).getBeginAdd() + waitingPcbs.get(n - 1).getNeedMemory() + 1);
+                memory.requestMemory(pcb.getBeginAdd(), pcb.getNeedMemory());
             }
             waitingPcbs.add(pcb);
         }
@@ -110,12 +111,13 @@ public class ProcessSchedule {
                 runningPCB.setStatus("运行");
             }
             //随机阻塞一个进程
-            if (runningPCB.getName().equals("P" + blockPCB)) {
+            if (runningPCB.getPID().equals("P" + blockPCB)) {
                 runningPCB.setStatus("阻塞");
                 blockPcbs.add(runningPCB);
             } else {
                 //执行进程命令
                 runningPCB = pcbRunning(runningPCB);
+                memory.releaseMemory(runningPCB.getBeginAdd());
                 runningPCB.setStatus("完成");
                 finishPcbs.add(runningPCB);
             }
@@ -131,6 +133,7 @@ public class ProcessSchedule {
         blockPcbs.remove(0);
         runningPCB.setStatus("运行");
         runningPCB = pcbRunning(runningPCB);
+        memory.releaseMemory(runningPCB.getBeginAdd());
         runningPCB.setStatus("完成");
         finishPcbs.add(runningPCB);
         time += timeSlice;
@@ -147,6 +150,8 @@ public class ProcessSchedule {
         System.out.println("-----------------------------------");
         System.out.println("当前系统时间:" + time);
         System.out.println("页表状态:" + pageTable1);
+        System.out.println("内存状态:");
+        System.out.println(memory);
         System.out.println("运行进程:");
         System.out.println(runningPCB);
         System.out.println("等待进程:");

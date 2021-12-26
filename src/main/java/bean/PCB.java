@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 public class PCB {
     //     进程名称
-    String name;
+    String PID;
     //     所需内存
     int needMemory;
     //    内存起址
@@ -36,9 +36,9 @@ public class PCB {
     @Override
     public String toString() {
         return "PCB{" +
-                "name='" + name + '\'' +
-//                ", needMemory=" + needMemory +
-//                ", beginAdd=" + beginAdd +
+                "PID='" + PID + '\'' +
+                ", needMemory=" + needMemory +
+                ", beginAdd=" + beginAdd +
                 ", arriveTime=" + arriveTime +
                 ", needTime=" + needTime +
                 ", status='" + status + '\'' +

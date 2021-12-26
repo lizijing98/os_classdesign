@@ -10,14 +10,19 @@ import lombok.Data;
  */
 @Data
 public class MemoryBlock {
-    int address = 0;
-    int length = 0;
+    private int address = 0;
+    private int length = 0;
 
-    String status = "free";
+    private String status = "free";
 
     public MemoryBlock(int address, int length) {
         this.address = address;
         this.length = length;
     }
 
+    public MemoryBlock(int address, int length, String status) {
+        this.address = address;
+        this.length = length;
+        this.status = status;
+    }
 }
