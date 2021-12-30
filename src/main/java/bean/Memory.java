@@ -79,8 +79,7 @@ public class Memory {
         mergeMemory();
     }
 
-    private void mergeMemory() {
-    flag:
+    public void mergeMemory() {
         for (MemoryBlock block : memoryBlocks) {
             int index = memoryBlocks.indexOf(block);
             //如果是最后一个则退出
@@ -93,35 +92,8 @@ public class Memory {
                 memoryBlocks.remove(block);
                 memoryBlocks.remove(nextBlock);
                 memoryBlocks.add(index, newBlock);
-                break flag;
+                break;
             }
-        }
-    }
-
-    /**
-     * <p> 合并 free 内存 </p>
-     *
-     * @param index free 内存位置
-     * @author LiZijing
-     * @date 2021/12/25
-     */
-    private void mergeMemory(int index) {
-        MemoryBlock needMerge = memoryBlocks.get(index);
-        //判断前一位是否 free
-        if (index - 1 >= 0 && memoryBlocks.get(index - 1).getStatus() == "free") {
-            MemoryBlock frontBlock = memoryBlocks.get(index - 1);
-            MemoryBlock newBlock = new MemoryBlock(frontBlock.getAddress(), needMerge.getLength() + frontBlock.getLength());
-            memoryBlocks.remove(index - 1);
-            memoryBlocks.remove(index);
-            memoryBlocks.add(index - 1, newBlock);
-        }
-        //判断后一位是否 free
-        else if (index + 1 <= memoryBlocks.size() - 1 && index != 0 && memoryBlocks.get(index - 1).getStatus() == "free") {
-            MemoryBlock backBlock = memoryBlocks.get(index - 1);
-            MemoryBlock newBlock = new MemoryBlock(needMerge.getAddress(), needMerge.getLength() + backBlock.getLength());
-            memoryBlocks.remove(index);
-            memoryBlocks.remove(index + 1);
-            memoryBlocks.add(index, newBlock);
         }
     }
 

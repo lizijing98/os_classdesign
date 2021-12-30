@@ -32,8 +32,7 @@ public class ProcessSchedule {
     //内存
     private Memory memory;
     //页表
-    private List<Integer> pageTable = new ArrayList<>(10);
-    private PageTable pageTable1;
+    private PageTable pageTable;
 
     public static void main(String[] args) {
         ProcessSchedule ps = new ProcessSchedule();
@@ -46,7 +45,7 @@ public class ProcessSchedule {
         try {
             new BufferedReader(new InputStreamReader(System.in)).readLine();
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -61,7 +60,7 @@ public class ProcessSchedule {
         //初始化内存块数据
         memory = new Memory(512);
         //初始化页表
-        pageTable1 = new PageTable(5);
+        pageTable = new PageTable(5);
         //初始化进程数据
         for (int n = 0; n < PROCESS_NUM; n++) {
             PCB pcb = new PCB();
@@ -113,6 +112,7 @@ public class ProcessSchedule {
             //随机阻塞一个进程
             if (runningPCB.getPID().equals("P" + blockPCB)) {
                 runningPCB.setStatus("阻塞");
+                time += runningPCB.getNeedTime();
                 blockPcbs.add(runningPCB);
             } else {
                 //执行进程命令
@@ -124,7 +124,7 @@ public class ProcessSchedule {
             //重设所有等待进程的响应比
             resetResponseRatio();
             //事件递增
-            time += timeSlice;
+//            time += timeSlice;
             //打印状态
             printSys();
         } while (!waitingPcbs.isEmpty());
@@ -136,7 +136,10 @@ public class ProcessSchedule {
         memory.releaseMemory(runningPCB.getBeginAdd());
         runningPCB.setStatus("完成");
         finishPcbs.add(runningPCB);
-        time += timeSlice;
+        do {
+            memory.mergeMemory();
+        }while (memory.getMemoryBlocks().size()!=1);
+//        time += timeSlice;
         printSys();
     }
 
@@ -149,7 +152,7 @@ public class ProcessSchedule {
     private void printSys() {
         System.out.println("-----------------------------------");
         System.out.println("当前系统时间:" + time);
-        System.out.println("页表状态:" + pageTable1);
+        System.out.println("页表状态:" + pageTable);
         System.out.println("内存状态:");
         System.out.println(memory);
         System.out.println("运行进程:");
@@ -202,43 +205,51 @@ public class ProcessSchedule {
         }
     }
 
+    /**
+     * <p> 模拟进程运行 </p>
+     *
+     * @param runningPCB 运行的 PCB
+     * @author LiZijing
+     * @date 2021/12/30
+     */
     private PCB pcbRunning(PCB runningPCB) {
         List<String> status = new ArrayList<>(runningPCB.getPageNumbers().size());
         for (Integer pageNum : runningPCB.getPageNumbers()) {
             //页表命中
-            if (pageTable1.getNums().contains(pageNum)) {
+            if (pageTable.getNums().contains(pageNum)) {
                 status.add("命中");
-                int pageSet = pageTable1.getNums().indexOf(pageNum);
+                int pageSet = pageTable.getNums().indexOf(pageNum);
                 //命中项的 Miss 重置为 0
-                pageTable1.getMiss().set(pageSet, 0);
+                pageTable.getMiss().set(pageSet, 0);
                 //对页表中其他页表项的未命中数+1
-                pageTable1.addMiss(pageSet);
+                pageTable.addMiss(pageSet);
             }
             //页表缺页
             else {
                 status.add("缺页");
                 //采用 LRU 算法进行缺页处理
                 //若页表未满，则向页表中进行添加，并对其他项的未命中数+1
-                if (pageTable1.getNums().size() != 10 && pageTable1.getNums().size() != 0) {
-                    pageTable1.getNums().add(pageNum);
-                    pageTable1.getMiss().add(0);
-                    pageTable1.addMiss(pageTable1.getNums().size() - 1);
+                if (pageTable.getNums().size() != 10 && pageTable.getNums().size() != 0) {
+                    pageTable.getNums().add(pageNum);
+                    pageTable.getMiss().add(0);
+                    pageTable.addMiss(pageTable.getNums().size() - 1);
                 }
                 //若页表已满，则选最近最久未访问项进行替换，并对其他项的未命中数+1
-                else if (pageTable1.getNums().size() == 10) {
-                    int maxMissIndex = pageTable1.getMissMax();
-                    pageTable1.getNums().set(maxMissIndex, pageNum);
-                    pageTable1.getMiss().set(maxMissIndex, 0);
-                    pageTable1.addMiss(maxMissIndex);
+                else if (pageTable.getNums().size() == 10) {
+                    int maxMissIndex = pageTable.getMissMax();
+                    pageTable.getNums().set(maxMissIndex, pageNum);
+                    pageTable.getMiss().set(maxMissIndex, 0);
+                    pageTable.addMiss(maxMissIndex);
                 }
                 //页表为空时
                 else {
-                    pageTable1.getNums().add(pageNum);
-                    pageTable1.getMiss().add(0);
+                    pageTable.getNums().add(pageNum);
+                    pageTable.getMiss().add(0);
                 }
             }
         }
         runningPCB.setPageStatus(status);
+        time += runningPCB.getNeedTime();
         return runningPCB;
     }
 }

@@ -2,6 +2,7 @@ package bean;
 
 import lombok.Data;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -33,6 +34,8 @@ public class PCB {
     //     响应比：1+作业等待/作业处理
     double responseRatio;
 
+    DecimalFormat df = new DecimalFormat("0.0");
+
     @Override
     public String toString() {
         return "PCB{" +
@@ -44,7 +47,7 @@ public class PCB {
                 ", status='" + status + '\'' +
                 ", pageNumbers=" + pageNumbers +
                 ", pageStatus=" + pageStatus +
-                ", responseRatio=" + responseRatio +
+                ", responseRatio=" + df.format(responseRatio) +
                 '}';
     }
 }
