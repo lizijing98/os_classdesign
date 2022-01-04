@@ -21,8 +21,6 @@ public class ProcessSchedule {
 
     //进程数
     private static int PROCESS_NUM = 5;
-    //时间片
-    private static int timeSlice = 10;
     //进程
     public PCB runningPCB;
     public List<PCB> waitingPcbs = new ArrayList<>(PROCESS_NUM);
@@ -123,8 +121,6 @@ public class ProcessSchedule {
             }
             //重设所有等待进程的响应比
             resetResponseRatio();
-            //事件递增
-//            time += timeSlice;
             //打印状态
             printSys();
         } while (!waitingPcbs.isEmpty());
@@ -139,7 +135,6 @@ public class ProcessSchedule {
         do {
             memory.mergeMemory();
         }while (memory.getMemoryBlocks().size()!=1);
-//        time += timeSlice;
         printSys();
     }
 
